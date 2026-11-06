@@ -1,0 +1,7 @@
+.env
+.venv/
+style_refs/
+out/
+reels_inbox/
+__pycache__/
+*.pyc
