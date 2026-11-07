@@ -94,6 +94,10 @@
   3. Set `paused: false`.
   4. Re-approve/reschedule the missed week-1 items if needed. max_late is 90 min, so missed slots are skipped, not posted late.
 - Keep browser automation on Meta sites to a minimum from now on.
+- User instruction (2026-11-07): Instagram is asking for selfie-video verification (the user is doing it).
+  - Stay paused. No Meta/API actions that day. The weekly-report workflow is disabled (`gh workflow disable weekly.yml`).
+  - The publish workflow keeps running but exits at the `paused` check before any API call.
+  - Resume slowly in a few days, starting with ONE post per day (no story bursts), then ramp up.
 
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
