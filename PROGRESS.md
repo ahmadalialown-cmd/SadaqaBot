@@ -52,6 +52,25 @@
 - The old adhkar story designs and daily verse/hadith posts were removed. Friday (Asr salawat + Saud dua) is unchanged.
 - The review page for week 1 has been regenerated. **WAITING for approval.**
 
+## 2026-11-07: LAUNCHED
+- Test story 18121670383782458 published and verified. Schedule */30 is on, `paused: false`. Week 1 is approved.
+
+## Growth layer (requested 2026-11-07), status
+- Done:
+  - bot/reel_maker.py: text reveal, hook visible at 0 s, seamless loop, silence or locally synthesised ambience. No music.
+  - 3 sample reels (media/reels/samples) in the review page, awaiting approval.
+  - captions.share_caption: send-CTA variants + ≤5 hashtags per theme.
+- Blocked or needs the user:
+  - Recitation audio: no clear reuse licence found (everyayah has no explicit licence; some reciters UNKNOWN). Needs a source with explicit permission.
+  - Insights: the token lacks instagram_manage_insights / read_insights, so a token regen with those scopes is needed for the weekly loop.
+  - Threads API: Meta app use case + user OAuth.
+  - YouTube: Google Cloud project + OAuth consent (user).
+- Next after sample approval:
+  - Reel scheduling by weekday rotation + Hijri seasons.
+  - Shareable series data (authentic duas with refs).
+  - FB Page cross-post (page token already stored).
+  - Weekly report_AR.md + re-weighting.
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.
