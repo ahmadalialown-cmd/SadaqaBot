@@ -35,6 +35,12 @@
   - Quran from the Tanzil *simple* script (as the account uses), split at pause marks, no ayah numbers, no basmala on adhkar slides.
   - The bank was rebuilt (still all pending).
 
+## 2026-11-07 (evening)
+- The secrets are stored (IG_TOKEN, IG_USER_ID, PAGE_ID, META_APP_ID, META_APP_SECRET) plus `.env`. The token is valid, `graph.username()` = 9d8h0garyh, and there's no expiry warning.
+- Run secrets via `setup_secrets.ps1`: Store Python can't read gh's keyring, so the wrapper passes GH_TOKEN.
+- Fetched 17 real posts into style_refs/api (gitignored). Findings: mostly no caption; the captions that exist are duas for Saud by name + "#قرآن #ذكر". Captions now rotate the account's own two duas verbatim. Dua posts use a lighter weight.
+- The review page for 2026-11-08..14 (85 items) has been generated and opened. **WAITING for the user's approval.**
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.
