@@ -44,7 +44,8 @@ def gh_exe():
 def check_gh():
     r = subprocess.run([gh_exe(), "auth", "status"], capture_output=True, text=True)
     if r.returncode != 0:
-        sys.exit("✖ GitHub مو مسجّل دخول. شغّل:  gh auth login --web  وبعدها رجّع شغّل السكربت.")
+        sys.exit("✖ GitHub ما وصل للسكربت. شغّله بهالطريقة:\n"
+                 "   powershell -ExecutionPolicy Bypass -File C:\\SadaqaBot\\setup_secrets.ps1")
     print("  ✔ GitHub جاهز")
 
 

@@ -71,7 +71,7 @@ GitHub بيرسل لك إيميل إن الـ workflow فشل، وبيطلع ف�
 2. تأكد إن الصلاحيات الخمس موجودة، واضغط **Generate Access Token**، واختار صفحة «صدقة جارية» وحساب @9d8h0garyh.
 3. شغّل:
 ```bash
-.venv\Scripts\python bot\secrets_setup.py
+powershell -ExecutionPolicy Bypass -File C:\SadaqaBot\setup_secrets.ps1
 ```
 انسخ التوكن واضغط Enter، وبعدها انسخ App Secret (من إعدادات التطبيق ← أساسي) واضغط Enter. الترتيب ما يفرق.
 
