@@ -1,6 +1,6 @@
 # ===== SadaqaBot settings =====
 # Master switch: true = nothing is published, whatever else is set.
-paused: true
+paused: false
 
 # false = only items you approved are published (recommended).
 # true  = everything in the bank is published automatically. Keep false.

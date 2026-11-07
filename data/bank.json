@@ -76707,6 +76707,23 @@
    ],
    "caption": "",
    "status": "pending"
+  },
+  {
+   "id": "test-story-2026-11-07",
+   "date": "2026-11-07",
+   "slot": "test",
+   "kind": "story",
+   "time": "2026-11-07T21:00:00+03:00",
+   "title": "اختبار",
+   "main": "شريحة 1",
+   "note": null,
+   "source": "منشورك «أذكار الصباح»",
+   "image": "media/adhkar/morning_01.png",
+   "refs": [
+    "ig:18201469900376299#1"
+   ],
+   "caption": "",
+   "status": "approved"
   }
  ],
  "epoch": "2026-11-08"

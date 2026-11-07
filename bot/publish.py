@@ -113,7 +113,9 @@ def main():
         print(f"  images in {out}")
         return 0
 
+    import envload
     import graph
+    envload.load()  # local runs read .env; in Actions the secrets come from env
     ok, warn = graph.token_status()
     state["warning"] = warn
     if warn:

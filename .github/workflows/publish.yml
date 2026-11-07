@@ -1,10 +1,10 @@
 name: publish
 
-# NOT scheduled yet. At launch (after approval + test story) this block is added:
-#   schedule:
-#     - cron: "*/30 * * * *"
-# Even when scheduled, nothing is posted while config.yaml has `paused: true`.
+# Runs every 30 min. Nothing is posted while config.yaml has `paused: true`,
+# and only items with status "approved" are ever published.
 on:
+  schedule:
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       dry_run:
