@@ -57,6 +57,19 @@ def build(start: date, days: int):
 <div class="meta"><b>{t}</b> · {SLOT_AR.get(x['slot'], x['slot'])} · <span class="st">{x['status']}</span>
 <div class="id">{esc(x['id'])}</div><div class="src">المصدر: {esc(x.get('source') or '')} {('· ' + esc(x['note'])) if x.get('note') else ''}</div>
 <div class="refs">{refs}</div><div class="cap">{cap}</div></div></div>""")
+    samples_html = ""
+    sj = ROOT / "media" / "reels" / "samples" / "samples.json"
+    if sj.exists():
+        cards = []
+        for s in json.loads(sj.read_text(encoding="utf-8")):
+            cap = esc(s["caption"]).replace("\n", "<br>")
+            extra = f'<div class="src">التفسير: {esc(s["tafsir"])}</div>' if s.get("tafsir") else ""
+            cards.append(f"""<div class="card pending"><video controls loop muted playsinline preload="metadata"
+ poster="../media/reels/samples/{esc(s['file'][:-4])}.jpg" src="../media/reels/samples/{esc(s['file'])}"></video>
+<div class="meta"><b>ريلز · {esc(s['day'])}</b> · <span class="st">عينة للمراجعة</span>
+<div class="src">المصدر: {esc(s['source'])}</div>{extra}<div class="src">الصوت: {esc(s['audio'])}</div>
+<div class="cap">{cap}</div></div></div>""")
+        samples_html = '<h2>عينات الريلز (٣) — تحتاج موافقتك قبل ما أسوي الباقي</h2>' + "".join(cards)
     page = f"""<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1"><title>مراجعة المحتوى</title>
 <style>
@@ -68,6 +81,7 @@ h1{{font-size:22px}} h2{{margin:28px 0 10px;border-bottom:1px solid var(--muted)
 .strip{{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}} .card img.th{{width:72px;border-radius:4px}}
 .same{{color:var(--muted)}}
 .card img{{width:180px;max-width:100%;border-radius:8px}}
+.card video{{width:220px;max-width:100%;border-radius:8px;background:#000}}
 .meta{{flex:1;min-width:220px;font-size:14px;line-height:1.7}}
 .id,.refs{{color:var(--muted);font-size:12px;direction:ltr;text-align:right}}
 .cap{{margin-top:6px;white-space:normal}} .approved .st{{color:#2e7d32}} .pending .st{{color:#b26a00}}
@@ -78,6 +92,7 @@ h1{{font-size:22px}} h2{{margin:28px 0 10px;border-bottom:1px solid var(--muted)
 وستوريز الأذكار هي شرائح منشوراتك نفسها، وبوست الجمعة من المصحف (Tanzil) وصحيح مسلم.
 <b>المحتوى الديني يحتاج مراجعة من مختص قبل النشر.</b><br>
 للموافقة: قل لـ Claude «اعتمد الأسبوع» أو اكتب أرقام العناصر اللي تبي تعدّلها.</div>
+{samples_html}
 {''.join(rows)}
 </body></html>"""
     OUT.mkdir(exist_ok=True)
