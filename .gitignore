@@ -2,6 +2,8 @@
 .venv/
 style_refs/
 out/
+review/
+*.overlay.png
 reels_inbox/
 __pycache__/
 *.pyc

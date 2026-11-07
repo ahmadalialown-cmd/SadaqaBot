@@ -5,6 +5,8 @@ from pathlib import Path
 
 DATA = Path(__file__).resolve().parents[1] / "data"
 AR_DIGITS = str.maketrans("0123456789", "٠١٢٣٤٥٦٧٨٩")
+BASMALA = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ"
+NAME_FIX = {14: "إبراهيم"}  # Tanzil metadata spells it without hamza
 
 
 @lru_cache
@@ -32,11 +34,19 @@ def verse(sura: int, start: int, end: int | None = None):
     """Return (text, source_line). Raises KeyError on an invalid reference."""
     end = end or start
     name, count = _suras()[sura]
+    name = NAME_FIX.get(sura, name)
     if not (1 <= start <= end <= count):
         raise KeyError(f"{sura}:{start}-{end} out of range (1..{count})")
-    parts = [f"{_verses()[(sura, a)]} ﴿{ar_num(a)}﴾" for a in range(start, end + 1)]
+    lead, parts = "", []
+    for a in range(start, end + 1):
+        t = _verses()[(sura, a)]
+        # Tanzil prefixes the basmala to ayah 1 (except Al-Fatiha, where it IS ayah 1)
+        if a == 1 and sura != 1 and t.startswith(BASMALA):
+            t = t[len(BASMALA):].strip()
+            lead = BASMALA + " "
+        parts.append(f"{t} ﴿{ar_num(a)}﴾")
     ref = ar_num(start) if start == end else f"{ar_num(start)}–{ar_num(end)}"
-    return " ".join(parts), f"سورة {name} {ref}"
+    return lead + " ".join(parts), f"سورة {name} {ref}"
 
 
 if __name__ == "__main__":

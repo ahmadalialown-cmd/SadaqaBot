@@ -1,0 +1,20 @@
+# Only hadith whose wording, collection/number and grading are certain. Everything here
+# still needs a check by a qualified person before approval (needs_review: true).
+- id: muslim-1631
+  title: "صدقة جارية"
+  text: "إذا مات الإنسان انقطع عنه عمله إلا من ثلاثة: إلا من صدقة جارية، أو علم يُنتفع به، أو ولد صالح يدعو له"
+  source: "رواه مسلم ١٦٣١"
+  grading: "صحيح"
+  needs_review: true
+- id: muslim-408
+  title: "الصلاة على النبي ﷺ"
+  text: "من صلى عليَّ واحدة صلى الله عليه عشرًا"
+  source: "رواه مسلم ٤٠٨"
+  grading: "صحيح"
+  needs_review: true
+- id: bukhari-7563
+  title: "كلمتان"
+  text: "كلمتان خفيفتان على اللسان، ثقيلتان في الميزان، حبيبتان إلى الرحمن: سبحان الله وبحمده، سبحان الله العظيم"
+  source: "متفق عليه · البخاري ٧٥٦٣ · مسلم ٢٦٩٤"
+  grading: "صحيح"
+  needs_review: true
