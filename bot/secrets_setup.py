@@ -33,11 +33,33 @@ def gh_secret(name, value):
     print(f"  ✔ GitHub secret {name} = {mask(value)}")
 
 
+DEFAULT_APP_ID = "1138534398890777"
+
+
+def clipboard(value=None):
+    if value is None:
+        out = subprocess.run(["powershell", "-NoProfile", "-Command", "Get-Clipboard -Raw"],
+                             capture_output=True, text=True, encoding="utf-8")
+        return (out.stdout or "").strip()
+    subprocess.run(["powershell", "-NoProfile", "-Command", "Set-Clipboard -Value ' '"], check=False)
+
+
+def read_secret(label):
+    """Hidden paste, or just press Enter to take it from the clipboard."""
+    v = getpass.getpass(f"{label} (الصقه، أو انسخه واضغط Enter بس): ").strip()
+    if not v:
+        v = clipboard()
+    if not v:
+        sys.exit(f"ما وصلني {label}.")
+    print(f"  ✔ وصل ({len(v)} حرف)")
+    return v
+
+
 def main():
-    print("الصق القيم هنا (ما راح تبين وانت تلصق، عادي):")
-    app_id = input("App ID: ").strip()
-    app_secret = getpass.getpass("App Secret: ").strip()
-    short = getpass.getpass("User token من Graph API Explorer: ").strip()
+    app_id = input(f"App ID [{DEFAULT_APP_ID}]: ").strip() or DEFAULT_APP_ID
+    app_secret = read_secret("App Secret")
+    short = read_secret("User token من Graph API Explorer")
+    clipboard("")
 
     ll = g("oauth/access_token", grant_type="fb_exchange_token",
            client_id=app_id, client_secret=app_secret, fb_exchange_token=short)["access_token"]
@@ -61,6 +83,7 @@ def main():
         gh_secret(k, v)
     (ROOT / ".env").write_text("".join(f"{k}={v}\n" for k, v in vals.items()), encoding="utf-8")
     print("  ✔ .env محلي (مو مرفوع على GitHub)")
+    clipboard("")
     print("خلصنا. ارجع لـ Claude واكتب: تم")
 
 
