@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import requests
+import yaml
 
 GRAPH = "https://graph.facebook.com/v27.0"
 ROOT = Path(__file__).resolve().parents[1]
@@ -109,18 +110,24 @@ def main():
     ll = g("oauth/access_token", grant_type="fb_exchange_token",
            client_id=app_id, client_secret=app_secret, fb_exchange_token=short)["access_token"]
 
-    pages = g("me/accounts", access_token=ll, fields="id,name,access_token,instagram_business_account")["data"]
-    pages = [p for p in pages if p.get("instagram_business_account")]
+    target = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))["instagram_username"]
+    pages = g("me/accounts", access_token=ll,
+              fields="id,name,access_token,instagram_business_account{id,username}")["data"]
     if not pages:
-        sys.exit("ما لقيت صفحة فيسبوك مربوطة بحساب انستقرام بزنس.")
-    for i, p in enumerate(pages):
-        print(f"  [{i}] {p['name']}")
-    page = pages[int(input("رقم الصفحة: ") or 0)] if len(pages) > 1 else pages[0]
-
+        sys.exit("✖ التوكن ما فيه أي صفحة فيسبوك. سوّ توكن جديد واختار صفحة «صدقة جارية» في النافذة.")
+    linked = [p for p in pages if p.get("instagram_business_account")]
+    match = [p for p in linked if p["instagram_business_account"].get("username") == target]
+    if not match:
+        found = ", ".join("@" + p["instagram_business_account"].get("username", "?") for p in linked) or "ولا حساب"
+        sys.exit(f"✖ لازم يكون @{target} مربوط بالصفحة، بس اللي لقيته: {found}. "
+                 "اربط الحساب بالصفحة (إعدادات الصفحة ← الحسابات المرتبطة ← Instagram) وسوّ توكن جديد.")
+    page = match[0]
     ig_id = page["instagram_business_account"]["id"]
-    page_token = page["access_token"]  # page token derived from a long-lived user token does not expire
+    page_token = page["access_token"]  # page token from a long-lived user token does not expire
     ig = g(ig_id, fields="username", access_token=page_token)
-    print(f"  ✔ Instagram: @{ig.get('username')}  (id {ig_id})")
+    if ig.get("username") != target:
+        sys.exit(f"✖ الحساب المربوط مو @{target}. وقفت ولا حفظت شي.")
+    print(f"  ✔ Instagram: @{ig['username']}  (id {ig_id}) · الصفحة: {page['name']}")
 
     vals = {"IG_USER_ID": ig_id, "PAGE_ID": page["id"], "IG_TOKEN": page_token,
             "META_APP_ID": app_id, "META_APP_SECRET": app_secret}

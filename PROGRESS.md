@@ -24,7 +24,8 @@
   - `tests/test_content.py` all pass. `README_AR.md` written.
 
 ## Blocked on the user (checklist sent)
-1. Link the IG account to the Page: the IG sign-in is a popup that only opens from the user's click. The IG signed in to the browser is `9d8h0garyh` (id 17841446695660671); not yet confirmed that it is صدقة جارية.
+0. TARGET ACCOUNT = **@9d8h0garyh** (display name «صَدقة», 17 posts, Accounts Center id 17841446695660671). It is a **Creator** account (user asked to be told how to switch to Business). `secrets_setup.py` and `publish.py` refuse any other username.
+1. Link @9d8h0garyh to the Page «صدقة جارية» (checked 2026-11-07: nothing linked yet). The IG confirm step is a popup that only opens from the user's click.
 2. Generate a new token in Explorer with the Page + IG selected, then run `secrets_setup.py` (the user copies the values; Claude must not).
 
 ## Next after the user says تم

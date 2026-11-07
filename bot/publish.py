@@ -121,6 +121,10 @@ def main():
         save_json(STATE, state)
         print("token invalid — stopping")
         return 1
+    who = graph.username()
+    if who != cfg["instagram_username"]:
+        print(f"account mismatch: token is for @{who}, config wants @{cfg['instagram_username']} — stopping")
+        return 1
 
     ensure_media(due, push=bool(os.environ.get("GITHUB_ACTIONS")))
     errors = 0

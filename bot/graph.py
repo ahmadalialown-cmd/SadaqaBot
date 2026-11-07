@@ -71,6 +71,10 @@ def publish(image_url=None, video_url=None, caption="", kind="feed"):
     return _call("POST", f"{ig}/media_publish", creation_id=cid)["id"]
 
 
+def username():
+    return _call("GET", _env("IG_USER_ID"), fields="username").get("username")
+
+
 def media_info(media_id):
     return _call("GET", media_id, fields="id,media_type,media_product_type,permalink,timestamp")
 

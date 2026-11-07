@@ -6,7 +6,10 @@ paused: true
 # true  = everything in the bank is published automatically. Keep false.
 auto_approve: false
 
-instagram_user: "صدقة جارية"
+# The ONLY account this bot may publish to (username, without @). Display name: «صَدقة».
+instagram_username: "9d8h0garyh"
+# Bridge Facebook Page (hidden, only used for API access); id 61596428126472
+facebook_page_name: "صدقة جارية"
 deceased_name: "سعود القحطاني"
 timezone: "Asia/Qatar"
 
