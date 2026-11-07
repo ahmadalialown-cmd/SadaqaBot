@@ -30,8 +30,27 @@ def g(path, **params):
     return data
 
 
+REPO = "ahmadalialown-cmd/SadaqaBot"
+
+
+def gh_exe():
+    import shutil
+    for c in (shutil.which("gh"), r"C:\Program Files\GitHub CLI\gh.exe"):
+        if c and Path(c).exists():
+            return c
+    sys.exit("✖ ما لقيت GitHub CLI (gh). سكّر PowerShell وافتحه من جديد، وجرّب مرة ثانية.")
+
+
+def check_gh():
+    r = subprocess.run([gh_exe(), "auth", "status"], capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit("✖ GitHub مو مسجّل دخول. شغّل:  gh auth login --web  وبعدها رجّع شغّل السكربت.")
+    print("  ✔ GitHub جاهز")
+
+
 def gh_secret(name, value):
-    subprocess.run(["gh", "secret", "set", name], input=value.encode(), check=True, cwd=ROOT)
+    subprocess.run([gh_exe(), "secret", "set", name, "--repo", REPO], input=value.encode(),
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
     print(f"  ✔ GitHub secret {name} = {mask(value)}")
 
 
@@ -98,6 +117,7 @@ def check_token(app_id, app_secret, token):
 
 
 def main():
+    check_gh()  # before asking for any value
     app_id = input(f"App ID [{DEFAULT_APP_ID}]: ").strip() or DEFAULT_APP_ID
     first = read_secret("القيمة الأولى (App Secret أو التوكن)")
     second = read_secret("القيمة الثانية")
