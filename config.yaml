@@ -1,6 +1,6 @@
 # ===== SadaqaBot settings =====
 # Master switch: true = nothing is published, whatever else is set.
-paused: false
+paused: true   # 2026-11-07: Facebook account locked by Meta security checkpoint; unpause after the user unlocks it
 
 # false = only items you approved are published (recommended).
 # true  = everything in the bank is published automatically. Keep false.
