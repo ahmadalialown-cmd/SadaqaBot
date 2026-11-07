@@ -82,18 +82,19 @@ def items_for_day(d: date, n: int, cfg, verses, hadith, duas):
         dua = duas[fri_n % len(duas)]
         feed = {"title": f"{cfg['deceased_name']} · رحمه الله", "main": dua["main"],
                 "source": dua["source"], "refs": [f"hisn:{dua['hisn_id']}"]}
-        cap = captions.dua_deceased(feed, cfg)
+        feed["weight"] = 400  # the account's dua posts use a lighter weight
+        cap = captions.dua_deceased(feed, cfg, n)
         slot = "feed_dua_deceased"
     elif n % 10 == 4:
         h = hadith[(n // 10) % len(hadith)]
         feed = {"title": h["title"], "main": h["text"], "source": h["source"], "refs": [f"hadith:{h['id']}"]}
-        cap = captions.hadith(feed, cfg)
+        cap = captions.hadith(feed, cfg, n)
         slot = "feed_hadith"
     else:
         s, a, b, title = verses[n % len(verses)]
         txt, src = verse(s, a, b)
         feed = {"title": title, "main": txt, "source": src, "refs": [f"quran:{s}:{a}-{b}"]}
-        cap = captions.verse(feed, cfg)
+        cap = captions.verse(feed, cfg, n)
         slot = "feed_verse"
     out.append({"id": f"{d}-maghrib", "date": str(d), "slot": slot, "kind": "feed",
                 "time": maghrib.isoformat(), "note": None, **feed, "caption": cap, "status": "pending"})

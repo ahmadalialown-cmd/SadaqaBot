@@ -60,7 +60,7 @@ def _font_data_uri(name: str) -> str:
     return "data:font/ttf;base64," + base64.b64encode((FONTS / name).read_bytes()).decode()
 
 
-def build_html(kind, main, title=None, source=None, note=None, **_):
+def build_html(kind, main, title=None, source=None, note=None, weight=None, **_):
     w, h = SIZES[kind]
     esc = lambda s: html.escape(s or "")
     title_html = f'<div class="title">{esc(title)}</div><div class="rule"></div>' if title else ""
@@ -71,7 +71,7 @@ def build_html(kind, main, title=None, source=None, note=None, **_):
     return TEMPLATE.format(
         font_url=_font_data_uri(STYLE["font_file"]), w=w, h=h,
         bg=STYLE["bg"], fg=STYLE["fg"], muted=STYLE["muted"],
-        weight=STYLE["weight"], title_weight=STYLE["title_weight"],
+        weight=weight or STYLE["weight"], title_weight=STYLE["title_weight"],
         title_top=320 if story else 110, title_px=52 if story else 48,
         mid_top=490 if story else 250, mid_bottom=460 if story else 180,
         side=70 if story else 60, bottom=320 if story else 90,
@@ -88,7 +88,8 @@ def render(items, out_dir: Path):
         for it in items:
             w, h = SIZES[it["kind"]]
             doc = build_html(it["kind"], it["main"], it.get("title"),
-                             it.get("source") if it.get("show_source", True) else None, it.get("note"))
+                             it.get("source") if it.get("show_source", True) else None, it.get("note"),
+                             weight=it.get("weight"))
             path = out_dir / f"{it['id']}.png"
             for attempt in range(3):  # Chromium occasionally fails a capture; retry on a fresh page
                 page = b.new_page(viewport={"width": w, "height": h}, device_scale_factor=1)

@@ -1,23 +1,30 @@
-"""Caption templates. Provisional: to be re-tuned to the account's real captions
-once the last ~40 posts are fetched (STEP 3). Keep them short and calm."""
+"""Captions, tuned to @9d8h0garyh's real captions (fetched 2026-11-07):
+most posts have no caption; the ones that do are a dua for سعود القحطاني by name,
+sometimes followed by "#قرآن #ذكر". The two duas below are the account's OWN caption
+texts, verbatim (posts 18123316778286595 and 18097494584559341), rotated."""
+
+USER_DUAS = [
+    "اللَّهُمَّ إِنَّ عَبْدَكَ سُعُودَ القَحْطَانِيَّ فِي ذِمَّتِكَ وَحَبْلِ جِوَارِكَ، فَقِهِ مِنْ فِتْنَةِ القَبْرِ وَعَذَابِ النَّارِ، وَأَنْتَ أَهْلُ الوَفَاءِ وَالحَقِّ، فَاغْفِرْ لَهُ وَارْحَمْهُ، إِنَّكَ أَنْتَ الغَفُورُ الرَّحِيمُ.",
+    "اللَّهُمَّ ارْحَمْ سُعُودَ القَحْطَانِيَّ وَاغْفِرْ لَهُ، وَأَكْرِمْ نُزُلَهُ، وَوَسِّعْ مُدْخَلَهُ، وَغَسِلْهُ بِالمَاءِ وَالثَّلْجِ وَالْبَرَدِ، وَنَقِّهِ مِنَ الْخَطَايَا كَمَا يُنَقَّى الثَّوْبُ الأَبْيَضُ مِنَ الدَّنَسِ",
+]
+TAGS = "#قرآن #ذكر"
 
 
-def _tail(cfg):
-    return f"صدقة جارية عن {cfg['deceased_name']}، رحمه الله.\n\n{cfg['hashtags']}"
+def _dua(n):
+    return USER_DUAS[n % len(USER_DUAS)]
 
 
-def verse(it, cfg):
-    return f"{it['title']}\n\n{it['source']}\n\n{_tail(cfg)}"
+def verse(it, cfg, n=0):
+    return f"{_dua(n)}\n\n{TAGS}"
 
 
-def hadith(it, cfg):
-    return f"{it['title']}\n\n{it['source']}\n\n{_tail(cfg)}"
+def hadith(it, cfg, n=0):
+    return f"{_dua(n)}\n\n{TAGS}"
 
 
-def friday_salawat(it, cfg):
-    return (f"عصر الجمعة… أكثروا من الصلاة على النبي ﷺ\n\n{it['source']}\n\n{_tail(cfg)}")
+def friday_salawat(it, cfg, n=0):
+    return f"عصر الجمعة… أكثروا من الصلاة على النبي ﷺ\n\n{TAGS}"
 
 
-def dua_deceased(it, cfg):
-    return (f"لا تنسوا {cfg['deceased_name']} من دعائكم\n\n{it['source']}\n\n"
-            f"{cfg['hashtags']}")
+def dua_deceased(it, cfg, n=0):
+    return f"لا تنسوا {cfg['deceased_name']} من دعائكم\n\n{TAGS}"
