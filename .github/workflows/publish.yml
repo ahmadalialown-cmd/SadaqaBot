@@ -18,6 +18,7 @@ concurrency:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   publish:
@@ -42,6 +43,7 @@ jobs:
           PAGE_ID: ${{ secrets.PAGE_ID }}
           META_APP_ID: ${{ secrets.META_APP_ID }}
           META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd bot
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then

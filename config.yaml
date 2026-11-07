@@ -1,10 +1,24 @@
 # ===== SadaqaBot settings =====
 # Master switch: true = nothing is published, whatever else is set.
-paused: true   # 2026-11-07: Facebook account locked by Meta security checkpoint; unpause after the user unlocks it
+#   THE ONE SWITCH: set `paused: true` to stop everything (publishing, API calls, reports).
+paused: false
 
-# false = only items you approved are published (recommended).
-# true  = everything in the bank is published automatically. Keep false.
-auto_approve: false
+# Warm-up after the account locks of 2026-11-07 (fully automatic, no input needed):
+#   from start_date: week 1 = 1 post/day (Maghrib feed), week 2 = 2/day (+ daily reel),
+#   then the full schedule. Nothing at all (not even API calls) happens before start_date.
+warmup:
+  start_date: "2026-11-10"
+  per_run_posts: 1        # feed/reel posts per 30-min run
+  per_run_stories: 6      # story frames per run (stories spread over ~2 hours)
+  gap_post_s: 90          # spacing between publishes in one run
+  gap_story_s: 20
+  max_per_day: 60         # full-schedule daily cap
+  api_cap: 60             # never go above this many publishes per 24h (Meta allows 100)
+
+# true = every item in the bank is published without a manual review.
+# Turned on 2026-11-07 at the user's request after they approved week 1.
+# All content comes from verified sources and passes tests/test_content.py.
+auto_approve: true
 
 # The ONLY account this bot may publish to (username, without @). Display name: «صَدقة».
 instagram_username: "9d8h0garyh"
@@ -39,5 +53,6 @@ crosspost:
 
 # Don't publish an item more than this many minutes late (e.g. after an outage)
 max_late_minutes: 90
+max_late_minutes_stories: 240
 
 hashtags: "#صدقة_جارية #سعود_القحطاني #ذكر #قرآن"

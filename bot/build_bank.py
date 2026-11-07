@@ -91,9 +91,7 @@ def items_for_day(d: date, epoch: date, cfg, athar, hadith, duas, frames):
         slot = "feed_dua_deceased"
     else:
         k = non_friday_index(epoch, d)
-        if k >= len(athar):
-            return out  # bank exhausted: no repeats — add more athar before extending
-        a = athar[k]
+        a = athar[k % len(athar)]  # 85 athar ≈ 99 days before any repeat; then the cycle restarts
         feed = {"title": a["title"], "main": a["text"], "source": a["source"], "weight": 500,
                 "refs": [f"zuhd:{a['num']}"]}
         cap = captions.athar(feed, cfg, n)

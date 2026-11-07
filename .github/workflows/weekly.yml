@@ -1,6 +1,9 @@
-name: weekly-report
+name: weekly
 
-# Fridays 13:30 Doha (10:30 UTC), after Jumu'ah
+# Fridays 13:30 Doha (10:30 UTC), after Jumu'ah:
+#  1) content auto top-up (no API calls)
+#  2) weekly report -> report_AR.md + a GitHub issue (= email to the owner)
+#     (skipped automatically while paused / before warm-up / while auto-paused)
 on:
   schedule:
     - cron: "30 10 * * 5"
@@ -8,18 +11,21 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
-  report:
+  weekly:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
-      - run: pip install pyyaml requests pillow hijridate==2.6.0
+      - run: pip install -r requirements.txt
+      - name: top up content
+        run: cd bot && python topup.py
       - name: report
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
@@ -27,10 +33,11 @@ jobs:
           PAGE_ID: ${{ secrets.PAGE_ID }}
           META_APP_ID: ${{ secrets.META_APP_ID }}
           META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: cd bot && python weekly_report.py
       - name: save
         run: |
           git config user.name "sadaqabot"
           git config user.email "sadaqabot@users.noreply.github.com"
-          git add report_AR.md reports data/optimizer.json
-          git diff --cached --quiet || (git commit -m "weekly report" && git pull --rebase && git push)
+          git add data/bank.json report_AR.md reports data/optimizer.json state || true
+          git diff --cached --quiet || (git commit -m "weekly: top-up + report" && git pull --rebase && git push)

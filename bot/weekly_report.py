@@ -10,6 +10,7 @@
 - Reminds to enable Trial Reels once followers >= 200.
 Missing permissions degrade gracefully (the report says what's missing)."""
 import json
+import os
 from collections import defaultdict
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -50,6 +51,15 @@ def chart(rows, path):
 
 
 def main():
+    import yaml
+    import health
+    import ramp
+    cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+    st, _ = ramp.stage(cfg, datetime.now(TZ).date())
+    h = health.load()
+    if cfg.get("paused") or st is None or h.get("auto_paused"):
+        print("paused / warm-up not started / auto-paused — no API calls this week.")
+        return
     envload.load()
     now = datetime.now(TZ)
     since = now - timedelta(days=7)
@@ -120,6 +130,8 @@ def main():
     L += ["", "## تعليقات جديدة (بدون رد تلقائي)", ""]
     L += [f"- @{c.get('username')}: {c.get('text')}" for _, c in comments] or ["- لا يوجد"]
     REPORT.write_text("\n".join(L) + "\n", encoding="utf-8")
+    health.notify(f"📊 تقرير الأسبوع {now:%Y-%m-%d}", "\n".join(L).replace(
+        "](reports/", f"](https://github.com/{os.environ.get('GITHUB_REPOSITORY', '')}/blob/main/reports/"))
     print("\n".join(L[:6]))
     print("changes:", changes or "none")
 

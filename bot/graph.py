@@ -9,13 +9,31 @@ GRAPH = "https://graph.facebook.com/v27.0"
 
 
 class GraphError(Exception):
-    pass
+    def __init__(self, msg, code=None, subcode=None):
+        super().__init__(msg)
+        self.code, self.subcode = code, subcode
+
+    @property
+    def kind(self):
+        """auth | rate_limit | blocked | permission | other — drives the self-healing policy."""
+        c, s = self.code, self.subcode
+        if c == 368:                                    # temporarily blocked for policy/spam
+            return "blocked"
+        if c in (190, 102):                             # token invalid / account checkpoint
+            return "auth"
+        if c in (4, 17, 32, 613, 80001, 80002) or s in (2207042,):
+            return "rate_limit"
+        if s in (2207051, 2207050, 1390008):     # action blocked / spam / account restricted
+            return "blocked"
+        if c in (10, 200, 3):
+            return "permission"
+        return "other"
 
 
 def _env(name):
     v = os.environ.get(name)
     if not v:
-        raise GraphError(f"missing env {name}")
+        raise GraphError(f"missing env {name}", code=190)
     return v
 
 
@@ -26,7 +44,8 @@ def _call(method, path, **params):
     if "error" in data:
         e = data["error"]
         # never echo params (they contain the token)
-        raise GraphError(f"{e.get('type')} {e.get('code')}: {e.get('message')}")
+        raise GraphError(f"{e.get('type')} {e.get('code')}/{e.get('error_subcode')}: {e.get('message')}",
+                         e.get("code"), e.get("error_subcode"))
     return data
 
 
