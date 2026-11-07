@@ -99,6 +99,21 @@
   - The publish workflow keeps running but exits at the `paused` check before any API call.
   - Resume slowly in a few days, starting with ONE post per day (no story bursts), then ramp up.
 
+## 2026-11-07 (night): AUTONOMOUS MODE (user won't monitor)
+- `paused: false`, `auto_approve: true`, warm-up from 2026-11-10 (bot/ramp.py):
+  - Week 1: 1 post/day. Week 2: 2/day. From 11-24: full schedule, capped at 60/24h with 90 s / 20 s spacing.
+  - No API calls at all before 11-10 (verified in Actions run 42398657387).
+- Self-healing (bot/health.py, state/health.json):
+  - auto-pause on rate_limit (24 h), blocked (72 h), auth/permission (probe once per 24 h), 3× other (6 h).
+  - Every pause/resume opens a GitHub issue, which emails the owner.
+  - FB cross-post only from stage 3.
+- weekly.yml (Fri): topup.py keeps ≥30 days of content; the report goes out as an issue (email) and is skipped while paused.
+- Limits:
+  - The Meta token can't be refreshed automatically; there's an email warning 14 days before data-access expiry.
+  - Threads/YouTube are not connected.
+  - No recitation audio.
+  - The athar cycle repeats after ~99 days.
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.
