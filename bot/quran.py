@@ -46,7 +46,9 @@ def sura_name(sura: int) -> str:
 
 
 def _lines(text: str):
-    """Break an ayah into display lines at its pause marks (marks themselves dropped)."""
+    """Break an ayah into display lines at its pause marks (marks themselves dropped).
+    The ۞ hizb/rub' marker is a section sign, not part of the ayah, so it's removed."""
+    text = text.replace("۞", "").strip()
     parts = re.split(f"\\s*[{PAUSE_MARKS}]\\s*", text)
     return [p.strip() for p in parts if p.strip()]
 

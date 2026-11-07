@@ -31,7 +31,7 @@ body {{ font-family:'Main',serif; color:{fg}; text-align:center; }}
 .title {{ font-size:50px; color:{muted}; }}
 .rule {{ width:84px; height:1.5px; background:{muted}; opacity:.6; margin-top:22px; }}
 .mid {{ position:absolute; left:80px; right:80px; top:480px; bottom:470px; display:flex; flex-direction:column;
-        align-items:center; justify-content:center; gap:10px; }}
+        align-items:center; justify-content:center; gap:10px; overflow:hidden; }}
 .ln {{ font-size:{px}px; line-height:1.75; font-weight:{weight}; text-wrap:balance; white-space:pre-line; }}
 .ln.hook {{ font-weight:{hook_weight}; }}
 .sub {{ font-size:40px; line-height:1.8; color:{fg}; opacity:.92; margin-top:26px; font-weight:400; }}
@@ -77,6 +77,17 @@ def make_reel(out: Path, lines, title=None, sub=None, bottom=None, duration=10.0
             pg.set_content(doc)
             pg.evaluate("document.fonts.ready")
             pg.wait_for_timeout(100)
+            # auto-fit: shrink all text lines until the block fits the safe middle area
+            pg.evaluate("""() => {
+              const mid = document.querySelector('.mid');
+              const lns = [...document.querySelectorAll('.ln, .sub')];
+              let k = 1.0;
+              while (mid.scrollHeight > mid.clientHeight + 1 && k > 0.45) {
+                k -= 0.04;
+                lns.forEach(e => { if (!e.dataset.px) e.dataset.px = parseFloat(getComputedStyle(e).fontSize);
+                                   e.style.fontSize = (e.dataset.px * k) + 'px'; });
+              }
+            }""")
             for f in range(total):
                 t = f / FPS
                 ops = [opacity(i, t) for i in range(1, n_extra + 1)]

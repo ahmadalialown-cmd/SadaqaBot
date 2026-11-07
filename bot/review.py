@@ -16,6 +16,8 @@ SLOT_AR = {
     "story_sleep": "ستوري · أذكار النوم", "feed_verse": "بوست · آية (المغرب)",
     "feed_hadith": "بوست · حديث (المغرب)", "feed_dua_deceased": "بوست · دعاء لسعود (المغرب)",
     "feed_athar": "بوست · أثر من الزهد (المغرب)",
+    "reel_athar": "أثر اليوم", "reel_verse_tafsir": "آية + تفسير السعدي", "reel_share_dua": "دعاء للمشاركة",
+    "reel_friday": "الجمعة + دعاء لسعود",
     "feed_friday_asr": "بوست · عصر الجمعة", "reel": "ريلز",
 }
 DAYS_AR = ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
@@ -37,6 +39,20 @@ def build(start: date, days: int):
             d = date.fromisoformat(cur)
             rows.append(f'<h2>{DAYS_AR[d.weekday()]} {cur}</h2>')
         t = x["time"][11:16]
+        if x["kind"] == "reel":
+            import reels_plan
+            if x.get("reel_spec"):
+                reels_plan.render_reel(x)
+            cap = esc(x.get("caption") or "—").replace("\n", "<br>")
+            spec = x.get("reel_spec", {})
+            extra = f'<div class="src">التفسير: {esc(spec["sub"])}</div>' if spec.get("sub") else ""
+            rows.append(f"""<div class="card {x['status']}"><video controls loop muted playsinline preload="metadata"
+ src="../{esc(x['video'])}"></video>
+<div class="meta"><b>{t}</b> · ريلز · {SLOT_AR.get(x['slot'], x['slot'])} · <span class="st">{x['status']}</span>
+<div class="id">{esc(x['id'])}</div><div class="src">المصدر: {esc(x.get('source') or '')}</div>{extra}
+<div class="src">الصوت: {'صوت طبيعة هادئ (مولَّد)' if spec.get('audio') == 'ambience' else 'صمت'}</div>
+<div class="cap">{cap}</div></div></div>""")
+            continue
         if x.get("image"):
             key = (x["date"], x["slot"])
             if key in seen_story:

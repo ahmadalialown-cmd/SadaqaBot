@@ -54,10 +54,12 @@ def ensure_media(items, push: bool):
                and not (MEDIA / f"{x['id']}.png").exists()]
     if missing:
         render(missing, MEDIA)
-    if missing and push:
+    if push:
         subprocess.run(["git", "add", "media"], cwd=ROOT, check=True)
-        subprocess.run(["git", "commit", "-m", f"media: {len(missing)} image(s)"], cwd=ROOT, check=True)
-        subprocess.run(["git", "push"], cwd=ROOT, check=True)
+        if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode != 0:
+            subprocess.run(["git", "commit", "-m", "media: new file(s)"], cwd=ROOT, check=True)
+            subprocess.run(["git", "pull", "--rebase"], cwd=ROOT, check=True)
+            subprocess.run(["git", "push"], cwd=ROOT, check=True)
     for x in items:
         rel = x.get("video") or x.get("image") or f"media/{x['id']}.png"
         url = public_url(rel)
@@ -66,6 +68,30 @@ def ensure_media(items, push: bool):
                 break
             time.sleep(5)
         x["_url"] = url
+
+
+def crosspost_facebook(x, cfg, state, graph):
+    """Same approved content to the linked Facebook Page (feed posts + reels). Never blocks IG."""
+    if not (cfg.get("crosspost") or {}).get("facebook") or x["kind"] not in ("feed", "reel"):
+        return
+    if x["kind"] == "story":
+        return
+    try:
+        fid = (graph.fb_reel(x["_url"], x.get("caption", "")) if x["kind"] == "reel"
+               else graph.fb_photo(x["_url"], x.get("caption", "")))
+        state["posted"][x["id"]]["facebook"] = fid
+        print(f"    ↳ facebook {fid}")
+    except Exception as e:
+        state["posted"][x["id"]]["facebook_error"] = str(e)[:200]
+        print(f"    ↳ facebook failed: {str(e)[:120]}")
+
+
+def ensure_reels(items):
+    """Render any reel video that isn't there yet (normally done at approval time)."""
+    import reels_plan
+    for x in items:
+        if x["kind"] == "reel" and x.get("reel_spec") and not (ROOT / x["video"]).exists():
+            reels_plan.render_reel(x)
 
 
 def due_items(bank, state, cfg, now, only=None):
@@ -129,6 +155,7 @@ def main():
         print(f"account mismatch: token is for @{who}, config wants @{cfg['instagram_username']} — stopping")
         return 1
 
+    ensure_reels(due)
     ensure_media(due, push=bool(os.environ.get("GITHUB_ACTIONS")))
     errors = 0
     try:
@@ -151,8 +178,10 @@ def main():
                 image_url=None if kind == "reel" else x["_url"],
                 video_url=x["_url"] if kind == "reel" else None,
                 caption=x.get("caption", ""), kind=kind)
-            state["posted"][x["id"]] = {"media_id": mid, "at": datetime.now(TZ).isoformat()}
+            state["posted"][x["id"]] = {"media_id": mid, "at": datetime.now(TZ).isoformat(),
+                                        "slot": x["slot"], "theme": x.get("theme")}
             used += 1
+            crosspost_facebook(x, cfg, state, graph)
             state["failed"].pop(x["id"], None)
             print(f"  ✔ {x['id']} -> {mid}")
         except Exception as e:  # retried next run

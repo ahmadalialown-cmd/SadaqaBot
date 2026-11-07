@@ -71,6 +71,52 @@ def publish(image_url=None, video_url=None, caption="", kind="feed"):
     return _call("POST", f"{ig}/media_publish", creation_id=cid)["id"]
 
 
+def token_scopes():
+    app = f"{_env('META_APP_ID')}|{_env('META_APP_SECRET')}"
+    return set(_call("GET", "debug_token", input_token=_env("IG_TOKEN"), access_token=app)["data"].get("scopes", []))
+
+
+# ---- Facebook Page cross-posting (needs pages_manage_posts) ----
+def fb_photo(image_url, caption):
+    return _call("POST", f"{_env('PAGE_ID')}/photos", url=image_url, caption=caption)["id"]
+
+
+def fb_reel(video_url, description):
+    page = _env("PAGE_ID")
+    start = _call("POST", f"{page}/video_reels", upload_phase="start")
+    vid = start["video_id"]
+    r = requests.post(start["upload_url"], timeout=120,
+                      headers={"Authorization": f"OAuth {_env('IG_TOKEN')}", "file_url": video_url})
+    if r.status_code >= 300:
+        raise GraphError(f"fb reel upload {r.status_code}")
+    _call("POST", f"{page}/video_reels", upload_phase="finish", video_id=vid,
+          video_state="PUBLISHED", description=description)
+    return vid
+
+
+# ---- Insights (need instagram_manage_insights; comments need instagram_manage_comments) ----
+def media_insights(media_id, metrics):
+    out = {}
+    for m in metrics:  # one by one: unsupported metrics for a media type shouldn't kill the rest
+        try:
+            d = _call("GET", f"{media_id}/insights", metric=m)["data"]
+            out[m] = d[0]["values"][0]["value"] if d and d[0].get("values") else d[0].get("total_value", {}).get("value")
+        except GraphError:
+            pass
+    return out
+
+
+def media_comments(media_id):
+    try:
+        return _call("GET", f"{media_id}/comments", fields="text,timestamp,username").get("data", [])
+    except GraphError:
+        return []
+
+
+def account_info():
+    return _call("GET", _env("IG_USER_ID"), fields="username,followers_count,media_count")
+
+
 def publishing_quota():
     """-> (used, total) for the rolling 24h API publishing limit."""
     d = _call("GET", f"{_env('IG_USER_ID')}/content_publishing_limit",

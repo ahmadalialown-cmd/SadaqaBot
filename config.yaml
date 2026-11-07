@@ -26,6 +26,17 @@ adhkar_posts:
   evening: "18091351205228272"   # أذكار المساء (13 slides)
   sleep: "18634968520046922"     # أذكار النوم (16 slides)
 
+# Reels: 1 per day (set 2 to add the athar of the day as a second reel at reel_time_2)
+reels_per_day: 1
+reel_time: "20:30"
+reel_time_2: "13:00"
+
+# Cross-posting (same approval applies). Facebook uses the stored Page token.
+crosspost:
+  facebook: false   # turn on after regenerating the token with pages_manage_posts
+  threads: false    # needs one-time Threads auth
+  youtube: false    # needs one-time Google OAuth
+
 # Don't publish an item more than this many minutes late (e.g. after an outage)
 max_late_minutes: 90
 

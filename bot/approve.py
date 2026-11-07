@@ -45,12 +45,26 @@ def main():
         if pick and x["status"] == "pending":
             x["status"] = "approved"
             changed.append(x)
+    # apply the weekly optimiser's best reel time to the reels being approved
+    opt_p = ROOT / "data" / "optimizer.json"
+    if opt_p.exists():
+        best = json.loads(opt_p.read_text(encoding="utf-8")).get("reel_time")
+        if best:
+            for x in changed:
+                if x["id"].endswith("-reel-1"):
+                    x["time"] = x["time"][:11] + best + ":00" + x["time"][19:]
     BANK.write_text(json.dumps(bank, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"approved {len(changed)}; rejected {len(a.reject or [])}")
     to_render = [x for x in changed if not x.get("image") and x["kind"] != "reel"]
     if to_render and not a.no_render:
         from render import render
         render(to_render, ROOT / "media")
+    reels = [x for x in changed if x["kind"] == "reel" and x.get("reel_spec")]
+    if reels and not a.no_render:
+        import reels_plan
+        for x in reels:
+            reels_plan.render_reel(x)
+        print(f"rendered {len(reels)} reel(s)")
         print("rendered into media/ — commit and push to make them live")
 
 

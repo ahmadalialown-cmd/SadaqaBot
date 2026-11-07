@@ -30,6 +30,7 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt && python -m playwright install --with-deps chromium
+      - run: which ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
       - name: git identity
         run: |
           git config user.name "sadaqabot"
@@ -38,6 +39,7 @@ jobs:
         env:
           IG_TOKEN: ${{ secrets.IG_TOKEN }}
           IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          PAGE_ID: ${{ secrets.PAGE_ID }}
           META_APP_ID: ${{ secrets.META_APP_ID }}
           META_APP_SECRET: ${{ secrets.META_APP_SECRET }}
         run: |

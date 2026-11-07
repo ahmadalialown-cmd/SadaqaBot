@@ -1,0 +1,56 @@
+# Content pools for the daily reel. Texts are NEVER stored here — only references:
+# verses come from data/quran-simple.txt (Tanzil), tafsir lines are exact substrings of
+# As-Sa'di (data/tafsir/saddi_S_A.json, quran.com API tafsir 91) between two markers,
+# duas come from data/hisn/*.json (Hisn al-Muslim) or the Quran.
+
+# Sun/Tue: short verse + one line of As-Sa'di [sura, ayah, start_marker, end_marker]
+verse_tafsir:
+  - [13, 28, "حقيق بها", "سوى ذكره"]
+  - [2, 152, "والذكر هو رأس الشكر", "رأس الشكر"]
+  - [36, 12, "وهي آثار الخير وآثار الشر", "في حال حياتهم وبعد وفاتهم"]
+  - [14, 7, "والشكر: هو اعتراف القلب", "في مرضاة الله تعالى"]
+  - [40, 60, "وأمرهم بدعائه", "أن يستجيب لهم"]
+  - [9, 51, "فلا خاب من توكل عليه", "فلا خاب من توكل عليه"]
+  - [17, 24, "ادع لهما بالرحمة", "أحياء وأمواتا"]
+  - [3, 8, "لا تملها عن الحق", "فثبتنا على هدايتك"]
+  - [23, 118, "أرحم بعبده من الوالدة بولدها", "من الوالدة بولدها"]
+  - [3, 133, "أمرهم تعالى بالمسارعة", "فكيف بطولها"]
+  - [18, 46, "وأن الذي يبقى للإنسان", "الباقيات الصالحات"]
+  - [16, 128, "والله مع المتقين المحسنين", "وتسديده"]
+  - [20, 14, "فالقلب المعطل عن ذكر الله", "عن كل خير"]
+  - [32, 16, "إلى ما هو ألذ عندهم", "وهو الصلاة في الليل"]
+  - [50, 16, "وهذا مما يدعو الإنسان", "مراقبة خالقه"]
+  - [17, 80, "اجعل مداخلي ومخارجي", "وعلى مرضاتك"]
+  - [28, 24, "والسؤال بالحال أبلغ", "بلسان المقال"]
+  - [15, 49, "فإنهم إذا عرفوا كمال رحمته", "ومغفرته"]
+  - [4, 110, "فهذا قد وعده من لا يخلف الميعاد", "بالمغفرة والرحمة"]
+  - [33, 3, "وأنه أرحم بعبده من نفسه", "ومن والديه"]
+  - [36, 58, "فما ظنك بتحية ملك الملوك", "ملك الملوك"]
+  - [10, 62, "ثبت لهم الأمن والسعادة", "والسعادة"]
+  - [13, 24, "صبركم هو الذي أوصلكم", "المنازل العالية"]
+  - [2, 153, "فالصبر هو المعونة العظيمة", "على كل أمر"]
+  - [7, 23, "فمن أشبه آدم بالاعتراف", "اجتباه ربه وهداه"]
+  - [25, 74, "تقر بهم أعيننا", "تقر بهم أعيننا"]
+  - [2, 45, "الصلاة التي هي ميزان الإيمان", "ميزان الإيمان"]
+  - [29, 69, "من أحسن فيما أمر به", "أسباب الهداية"]
+
+# Thursday: highly shareable duas, rotating themes. kind: hisn (chapter id, item id) or quran.
+share_duas:
+  - {theme: dua_deceased, title: "دعاء للميت", kind: hisn, chapter: 55, item: 159}
+  - {theme: dua_sick, title: "دعاء للمريض", kind: hisn, chapter: 49, item: 148}
+  - {theme: dua_parents, title: "دعاء للوالدين", kind: quran, ref: [17, 24, 24]}
+  - {theme: dua_deceased, title: "دعاء للميت", kind: hisn, chapter: 55, item: 157}
+  - {theme: dua_sick, title: "دعاء للمريض", kind: hisn, chapter: 49, item: 147}
+  - {theme: dua_parents, title: "دعاء للوالدين", kind: quran, ref: [14, 41, 41]}
+  - {theme: dua_deceased, title: "دعاء للميت", kind: hisn, chapter: 59, item: 164}
+  - {theme: dua_parents, title: "دعاء للوالدين", kind: quran, ref: [71, 28, 28]}
+  - {theme: dua_deceased, title: "دعاء للميت", kind: hisn, chapter: 55, item: 156}
+
+# Hijri seasons replace the weekday rotation automatically (all marked for review).
+seasons:
+  ramadan:            # 9/1 .. 9/30
+    hijri: {month: 9, from: 1, to: 30}
+    verses: [[2, 183, 183], [2, 185, 185], [97, 1, 5], [2, 186, 186]]
+  dhul_hijjah_10:     # 12/1 .. 12/10
+    hijri: {month: 12, from: 1, to: 10}
+    verses: [[89, 1, 2], [22, 28, 28], [2, 203, 203], [37, 107, 107]]

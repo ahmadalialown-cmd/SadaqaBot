@@ -79,6 +79,28 @@ def test_adhkar_story_frames_exist():
             assert (ROOT / x["image"]).exists(), x["id"]
 
 
+def test_reels_text_exact():
+    """Reel texts: verses equal the Tanzil text in order; tafsir lines are exact As-Sa'di substrings."""
+    import json as _j
+    import re as _re
+    for x in BANK:
+        s = x.get("reel_spec")
+        if not s:
+            continue
+        for r in s["refs"]:
+            if r.startswith("quran:"):
+                parts = r.split(":")
+                a_b = parts[2].split("-")
+                txt, _ = verse(int(parts[1]), int(a_b[0]), int(a_b[-1]))
+                assert txt in s["lines"], x["id"]
+            if r.startswith("saddi:"):
+                _, su, ay = r.split(":")
+                raw = _j.loads((ROOT / "data" / "tafsir" / f"saddi_{su}_{ay}.json").read_text(encoding="utf-8"))
+                body = _re.sub(r"<[^>]+>", "", raw["tafsir"]["text"])
+                quoted = _re.search(r"«(.+)»", s["sub"]).group(1)
+                assert quoted in body, x["id"]
+
+
 def test_prayer_times_doha_2026_11_06():
     t = times(date(2026, 11, 6))
     # Qatar (Awqaf) method values from timesprayer.com for that day

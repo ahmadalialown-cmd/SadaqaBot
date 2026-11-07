@@ -100,6 +100,9 @@ def items_for_day(d: date, epoch: date, cfg, athar, hadith, duas, frames):
         slot = "feed_athar"
     out.append({"id": f"{d}-maghrib", "date": str(d), "slot": slot, "kind": "feed",
                 "time": t["maghrib"].isoformat(), "note": None, **feed, "caption": cap, "status": "pending"})
+    if cfg.get("reels_per_day", 1) > 0:
+        import reels_plan
+        out += reels_plan.bank_items(d, epoch, cfg, out)
     return out
 
 
