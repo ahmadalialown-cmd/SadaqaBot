@@ -71,6 +71,13 @@ def publish(image_url=None, video_url=None, caption="", kind="feed"):
     return _call("POST", f"{ig}/media_publish", creation_id=cid)["id"]
 
 
+def publishing_quota():
+    """-> (used, total) for the rolling 24h API publishing limit."""
+    d = _call("GET", f"{_env('IG_USER_ID')}/content_publishing_limit",
+              fields="quota_usage,config").get("data", [{}])[0]
+    return d.get("quota_usage", 0), (d.get("config") or {}).get("quota_total", 100)
+
+
 def username():
     return _call("GET", _env("IG_USER_ID"), fields="username").get("username")
 

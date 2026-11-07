@@ -47,9 +47,10 @@ def main():
             changed.append(x)
     BANK.write_text(json.dumps(bank, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"approved {len(changed)}; rejected {len(a.reject or [])}")
-    if changed and not a.no_render:
+    to_render = [x for x in changed if not x.get("image") and x["kind"] != "reel"]
+    if to_render and not a.no_render:
         from render import render
-        render(changed, ROOT / "media")
+        render(to_render, ROOT / "media")
         print("rendered into media/ — commit and push to make them live")
 
 

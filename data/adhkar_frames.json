@@ -1,0 +1,66 @@
+{
+ "morning": {
+  "post_id": "18201469900376299",
+  "frames": [
+   "media/adhkar/morning_01.png",
+   "media/adhkar/morning_02.png",
+   "media/adhkar/morning_03.png",
+   "media/adhkar/morning_04.png",
+   "media/adhkar/morning_05.png",
+   "media/adhkar/morning_06.png",
+   "media/adhkar/morning_07.png",
+   "media/adhkar/morning_08.png",
+   "media/adhkar/morning_09.png",
+   "media/adhkar/morning_10.png",
+   "media/adhkar/morning_11.png",
+   "media/adhkar/morning_12.png",
+   "media/adhkar/morning_13.png",
+   "media/adhkar/morning_14.png",
+   "media/adhkar/morning_15.png",
+   "media/adhkar/morning_16.png",
+   "media/adhkar/morning_17.png",
+   "media/adhkar/morning_18.png",
+   "media/adhkar/morning_19.png",
+   "media/adhkar/morning_20.png"
+  ]
+ },
+ "evening": {
+  "post_id": "18091351205228272",
+  "frames": [
+   "media/adhkar/evening_01.png",
+   "media/adhkar/evening_02.png",
+   "media/adhkar/evening_03.png",
+   "media/adhkar/evening_04.png",
+   "media/adhkar/evening_05.png",
+   "media/adhkar/evening_06.png",
+   "media/adhkar/evening_07.png",
+   "media/adhkar/evening_08.png",
+   "media/adhkar/evening_09.png",
+   "media/adhkar/evening_10.png",
+   "media/adhkar/evening_11.png",
+   "media/adhkar/evening_12.png",
+   "media/adhkar/evening_13.png"
+  ]
+ },
+ "sleep": {
+  "post_id": "18634968520046922",
+  "frames": [
+   "media/adhkar/sleep_01.png",
+   "media/adhkar/sleep_02.png",
+   "media/adhkar/sleep_03.png",
+   "media/adhkar/sleep_04.png",
+   "media/adhkar/sleep_05.png",
+   "media/adhkar/sleep_06.png",
+   "media/adhkar/sleep_07.png",
+   "media/adhkar/sleep_08.png",
+   "media/adhkar/sleep_09.png",
+   "media/adhkar/sleep_10.png",
+   "media/adhkar/sleep_11.png",
+   "media/adhkar/sleep_12.png",
+   "media/adhkar/sleep_13.png",
+   "media/adhkar/sleep_14.png",
+   "media/adhkar/sleep_15.png",
+   "media/adhkar/sleep_16.png"
+  ]
+ }
+}

@@ -19,7 +19,12 @@ evening_after_asr_min: 20
 sleep_time: "22:00"
 friday_asr_post_after_min: 30
 
-frames_per_story: {morning: 4, evening: 4, sleep: 3}
+# Adhkar stories = the account's OWN adhkar carousel posts, re-published slide by slide as
+# story frames (the API can't do the native "share post to story" sticker).
+adhkar_posts:
+  morning: "18201469900376299"   # أذكار الصباح (20 slides)
+  evening: "18091351205228272"   # أذكار المساء (13 slides)
+  sleep: "18634968520046922"     # أذكار النوم (16 slides)
 
 # Don't publish an item more than this many minutes late (e.g. after an outage)
 max_late_minutes: 90

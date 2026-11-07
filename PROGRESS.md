@@ -41,6 +41,17 @@
 - Fetched 17 real posts into style_refs/api (gitignored). Findings: mostly no caption; the captions that exist are duas for Saud by name + "#قرآن #ذكر". Captions now rotate the account's own two duas verbatim. Dua posts use a lighter weight.
 - The review page for 2026-11-08..14 (85 items) has been generated and opened. **WAITING for the user's approval.**
 
+## 2026-11-07 (night): plan change from the user
+- Daily Maghrib feed = one athar from كتاب الزهد للإمام أحمد.
+  - Text: OpenITI copy of Shamela 8494 (دار الكتب العلمية ط1 1420هـ), in data/zuhd/zuhd.md.
+  - 85 curated athar in data/athar.yaml (bot/build_athar.py; speakers verified against the isnad). Each matn is an exact substring, with only ms/[ص:] markers removed.
+  - The source line cites the narration number + edition. Pages are omitted because the digital page tags are inconsistent.
+  - 77 used for 90 days, no repeats; 8 spare.
+- Adhkar stories = the account's own carousels (config adhkar_posts: morning 20 / evening 13 / sleep 16 slides), turned into 1080x1920 frames in media/adhkar by bot/adhkar_stories.py.
+  - That's 49 stories/day. The publish quota is checked (limit 100/24h) and feed posts go first.
+- The old adhkar story designs and daily verse/hadith posts were removed. Friday (Asr salawat + Saud dua) is unchanged.
+- The review page for week 1 has been regenerated. **WAITING for approval.**
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.

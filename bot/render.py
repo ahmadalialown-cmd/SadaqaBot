@@ -35,7 +35,7 @@ body {{ font-family:'Main', serif; color:{fg}; text-align:center; -webkit-font-s
 .rule {{ width:84px; height:1.5px; background:{muted}; opacity:.6; margin-top:22px; }}
 .mid {{ position:absolute; left:{side}px; right:{side}px; top:{mid_top}px; bottom:{mid_bottom}px;
         display:flex; align-items:center; justify-content:center; }}
-.main {{ font-size:{main_px}px; line-height:1.85; font-weight:{weight}; white-space:pre-line; }}
+.main {{ font-size:{main_px}px; line-height:1.85; font-weight:{weight}; white-space:pre-line; text-wrap:balance; }}
 .bottom {{ position:absolute; left:0; right:0; bottom:{bottom}px; font-size:{src_px}px; color:{muted}; line-height:1.6; }}
 </style></head><body>
 <div class="top">{title_html}</div>
@@ -86,6 +86,12 @@ def render(items, out_dir: Path):
     with sync_playwright() as p:
         b = p.chromium.launch()
         for it in items:
+            if it.get("image"):  # ready-made frame (e.g. the account's own adhkar slide)
+                import shutil
+                path = out_dir / f"{it['id']}.png"
+                shutil.copyfile(ROOT / it["image"], path)
+                paths.append(path)
+                continue
             w, h = SIZES[it["kind"]]
             doc = build_html(it["kind"], it["main"], it.get("title"),
                              it.get("source") if it.get("show_source", True) else None, it.get("note"),

@@ -47,6 +47,38 @@ def test_feed_has_caption():
             assert x["caption"].strip(), x["id"]
 
 
+def test_athar_exact_from_book():
+    """Every athar text must be the book's matn (only isnad + digital markers removed)."""
+    import yaml
+    import zuhd
+    from build_athar import clean
+    athar = yaml.safe_load((ROOT / "data" / "athar.yaml").read_text(encoding="utf-8"))
+    nums = [a["num"] for a in athar]
+    assert len(nums) == len(set(nums))
+    for a in athar:
+        sp, raw = zuhd.extract(a["num"])
+        assert raw == a["raw"] and raw in zuhd.narrations()[a["num"]]["text"], a["num"]
+        assert a["text"] == clean(raw), a["num"]
+        assert "صلى الله عليه وسلم" not in zuhd.narrations()[a["num"]]["text"], a["num"]
+
+
+def test_bank_athar_no_repeats_and_match():
+    import yaml
+    athar = {a["num"]: a for a in yaml.safe_load((ROOT / "data" / "athar.yaml").read_text(encoding="utf-8"))}
+    used = [x["refs"][0] for x in BANK if x["slot"] == "feed_athar"]
+    assert len(used) == len(set(used))
+    for x in BANK:
+        if x["slot"] == "feed_athar":
+            a = athar[int(x["refs"][0].split(":")[1])]
+            assert x["main"] == a["text"] and x["source"] == a["source"], x["id"]
+
+
+def test_adhkar_story_frames_exist():
+    for x in BANK:
+        if x.get("image"):
+            assert (ROOT / x["image"]).exists(), x["id"]
+
+
 def test_prayer_times_doha_2026_11_06():
     t = times(date(2026, 11, 6))
     # Qatar (Awqaf) method values from timesprayer.com for that day

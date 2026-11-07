@@ -1,6 +1,13 @@
 """Build/extend the content bank (data/bank.json) for N days.
 
-Every item is created with status "pending"; only "approved" items are ever published.
+Per day:
+- Stories: the account's own adhkar carousel slides (data/adhkar_frames.json, made by
+  adhkar_stories.py) re-published as story frames: morning after Fajr, evening after Asr,
+  sleep at 22:00.
+- Feed at Maghrib: one أثر from كتاب الزهد للإمام أحمد (data/athar.yaml), no repeats.
+- Friday: Asr post on الصلاة على النبي ﷺ, and the Maghrib post is a dua for سعود (unchanged).
+
+Every item is created "pending"; only "approved" items are ever published.
 Existing items (and their status) are never overwritten.
 Usage: python bot/build_bank.py [--start YYYY-MM-DD] [--days 90]
 """
@@ -18,6 +25,7 @@ from quran import verse
 
 ROOT = Path(__file__).resolve().parents[1]
 BANK = ROOT / "data" / "bank.json"
+SESSIONS_AR = {"morning": "أذكار الصباح", "evening": "أذكار المساء", "sleep": "أذكار النوم"}
 
 
 def load_cfg():
@@ -40,33 +48,31 @@ def at(d: date, hhmm: str):
     return datetime(d.year, d.month, d.day, h, m, tzinfo=TZ)
 
 
-def items_for_day(d: date, n: int, cfg, verses, hadith, duas):
-    """n = day index since the bank's epoch (drives rotation)."""
+def non_friday_index(epoch: date, d: date) -> int:
+    return sum(1 for i in range((d - epoch).days) if (epoch + timedelta(days=i)).weekday() != 4)
+
+
+def items_for_day(d: date, epoch: date, cfg, athar, hadith, duas, frames):
     t = times(d)
+    n = (d - epoch).days
     out = []
-    sessions = [
-        ("morning", "أذكار الصباح", t["fajr"] + timedelta(minutes=cfg["morning_after_fajr_min"])),
-        ("evening", "أذكار المساء", t["asr"] + timedelta(minutes=cfg["evening_after_asr_min"])),
-        ("sleep", "أذكار النوم", at(d, cfg["sleep_time"])),
-    ]
-    for key, title, when in sessions:
-        pool = adhkar.items(key)
-        k = cfg["frames_per_story"][key]
-        for f in range(k):
-            it = pool[(n * k + f) % len(pool)]
+    when = {
+        "morning": t["fajr"] + timedelta(minutes=cfg["morning_after_fajr_min"]),
+        "evening": t["asr"] + timedelta(minutes=cfg["evening_after_asr_min"]),
+        "sleep": at(d, cfg["sleep_time"]),
+    }
+    for key, info in frames.items():
+        for i, img in enumerate(info["frames"], 1):
             out.append({
-                "id": f"{d}-{key}-{f + 1}", "date": str(d), "slot": f"story_{key}", "kind": "story",
-                "time": (when + timedelta(minutes=f)).isoformat(), "title": it["title"],
-                "session": title, "main": it["main"], "note": it["count"], "source": it["source"],
-                "show_source": False,  # the account's adhkar slides show only the count
-                "refs": [f"hisn:{it['hisn_id']}"], "caption": "", "status": "pending",
+                "id": f"{d}-{key}-{i:02d}", "date": str(d), "slot": f"story_{key}", "kind": "story",
+                "time": when[key].isoformat(), "title": SESSIONS_AR[key],
+                "main": f"شريحة {i} من {len(info['frames'])}", "note": None,
+                "source": f"منشورك «{SESSIONS_AR[key]}»", "image": img,
+                "refs": [f"ig:{info['post_id']}#{i}"], "caption": "", "status": "pending",
             })
 
-    is_friday = d.weekday() == 4
-    maghrib = t["maghrib"]
-    if is_friday:
+    if d.weekday() == 4:  # Friday — unchanged
         fri_n = n // 7
-        # Asr on Friday: الصلاة على النبي ﷺ (verse and hadith alternate)
         if fri_n % 2 == 0:
             txt, src = verse(33, 56)
             asr_item = {"title": "الصلاة على النبي ﷺ", "main": txt, "source": src, "refs": ["quran:33:56"]}
@@ -76,35 +82,32 @@ def items_for_day(d: date, n: int, cfg, verses, hadith, duas):
         out.append({
             "id": f"{d}-friday-asr", "date": str(d), "slot": "feed_friday_asr", "kind": "feed",
             "time": (t["asr"] + timedelta(minutes=cfg["friday_asr_post_after_min"])).isoformat(),
-            "note": None, **asr_item,
-            "caption": captions.friday_salawat(asr_item, cfg), "status": "pending",
+            "note": None, **asr_item, "caption": captions.friday_salawat(asr_item, cfg, n), "status": "pending",
         })
         dua = duas[fri_n % len(duas)]
-        feed = {"title": f"{cfg['deceased_name']} · رحمه الله", "main": dua["main"],
+        feed = {"title": f"{cfg['deceased_name']} · رحمه الله", "main": dua["main"], "weight": 400,
                 "source": dua["source"], "refs": [f"hisn:{dua['hisn_id']}"]}
-        feed["weight"] = 400  # the account's dua posts use a lighter weight
         cap = captions.dua_deceased(feed, cfg, n)
         slot = "feed_dua_deceased"
-    elif n % 10 == 4:
-        h = hadith[(n // 10) % len(hadith)]
-        feed = {"title": h["title"], "main": h["text"], "source": h["source"], "refs": [f"hadith:{h['id']}"]}
-        cap = captions.hadith(feed, cfg, n)
-        slot = "feed_hadith"
     else:
-        s, a, b, title = verses[n % len(verses)]
-        txt, src = verse(s, a, b)
-        feed = {"title": title, "main": txt, "source": src, "refs": [f"quran:{s}:{a}-{b}"]}
-        cap = captions.verse(feed, cfg, n)
-        slot = "feed_verse"
+        k = non_friday_index(epoch, d)
+        if k >= len(athar):
+            return out  # bank exhausted: no repeats — add more athar before extending
+        a = athar[k]
+        feed = {"title": a["title"], "main": a["text"], "source": a["source"], "weight": 500,
+                "refs": [f"zuhd:{a['num']}"]}
+        cap = captions.athar(feed, cfg, n)
+        slot = "feed_athar"
     out.append({"id": f"{d}-maghrib", "date": str(d), "slot": slot, "kind": "feed",
-                "time": maghrib.isoformat(), "note": None, **feed, "caption": cap, "status": "pending"})
+                "time": t["maghrib"].isoformat(), "note": None, **feed, "caption": cap, "status": "pending"})
     return out
 
 
 def build(start: date, days: int):
     cfg = load_cfg()
-    verses = yaml.safe_load((ROOT / "data" / "verses.yaml").read_text(encoding="utf-8"))
+    athar = yaml.safe_load((ROOT / "data" / "athar.yaml").read_text(encoding="utf-8"))
     hadith = yaml.safe_load((ROOT / "data" / "hadith.yaml").read_text(encoding="utf-8"))
+    frames = json.loads((ROOT / "data" / "adhkar_frames.json").read_text(encoding="utf-8"))
     duas = adhkar.dead_duas()
     bank = load_bank()
     epoch = date.fromisoformat(bank.setdefault("epoch", str(start)))
@@ -112,7 +115,7 @@ def build(start: date, days: int):
     added = 0
     for i in range(days):
         d = start + timedelta(days=i)
-        for it in items_for_day(d, (d - epoch).days, cfg, verses, hadith, duas):
+        for it in items_for_day(d, epoch, cfg, athar, hadith, duas, frames):
             if it["id"] not in have:
                 bank["items"].append(it)
                 added += 1

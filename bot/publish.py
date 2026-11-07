@@ -50,7 +50,8 @@ def public_url(rel: str):
 def ensure_media(items, push: bool):
     """Render missing images into media/, commit+push them so they get a public URL."""
     from render import render
-    missing = [x for x in items if x["kind"] != "reel" and not (MEDIA / f"{x['id']}.png").exists()]
+    missing = [x for x in items if x["kind"] != "reel" and not x.get("image")
+               and not (MEDIA / f"{x['id']}.png").exists()]
     if missing:
         render(missing, MEDIA)
     if missing and push:
@@ -58,7 +59,7 @@ def ensure_media(items, push: bool):
         subprocess.run(["git", "commit", "-m", f"media: {len(missing)} image(s)"], cwd=ROOT, check=True)
         subprocess.run(["git", "push"], cwd=ROOT, check=True)
     for x in items:
-        rel = x.get("video") or f"media/{x['id']}.png"
+        rel = x.get("video") or x.get("image") or f"media/{x['id']}.png"
         url = public_url(rel)
         for _ in range(24):  # wait for raw.githubusercontent.com to serve it
             if requests.head(url, timeout=20).status_code == 200:
@@ -128,9 +129,20 @@ def main():
 
     ensure_media(due, push=bool(os.environ.get("GITHUB_ACTIONS")))
     errors = 0
+    try:
+        used, total = graph.publishing_quota()
+        print(f"publishing quota: {used}/{total} in the last 24h")
+    except Exception:
+        used, total = 0, 10**9
+    # feed posts first so a tight quota never drops them in favour of story frames
+    due.sort(key=lambda x: (x["kind"] == "story", x["time"], x["id"]))
     for x in due:
         if x["id"] in state["posted"]:
             continue  # never double-post
+        if used >= total:
+            state["warning"] = f"وصلنا حد النشر اليومي في انستقرام ({used}/{total}) — الباقي ينتظر."
+            print(state["warning"])
+            break
         try:
             kind = x["kind"]
             mid = graph.publish(
@@ -138,6 +150,7 @@ def main():
                 video_url=x["_url"] if kind == "reel" else None,
                 caption=x.get("caption", ""), kind=kind)
             state["posted"][x["id"]] = {"media_id": mid, "at": datetime.now(TZ).isoformat()}
+            used += 1
             state["failed"].pop(x["id"], None)
             print(f"  ✔ {x['id']} -> {mid}")
         except Exception as e:  # retried next run

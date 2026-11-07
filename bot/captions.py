@@ -18,6 +18,10 @@ def verse(it, cfg, n=0):
     return f"{_dua(n)}\n\n{TAGS}"
 
 
+def athar(it, cfg, n=0):
+    return f"{_dua(n)}\n\n{TAGS}"
+
+
 def hadith(it, cfg, n=0):
     return f"{_dua(n)}\n\n{TAGS}"
 
