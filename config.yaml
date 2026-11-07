@@ -33,7 +33,7 @@ reel_time_2: "13:00"
 
 # Cross-posting (same approval applies). Facebook uses the stored Page token.
 crosspost:
-  facebook: false   # turn on after regenerating the token with pages_manage_posts
+  facebook: true    # token has pages_manage_posts (2026-11-07)
   threads: false    # needs one-time Threads auth
   youtube: false    # needs one-time Google OAuth
 

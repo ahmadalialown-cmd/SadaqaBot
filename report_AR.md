@@ -2,8 +2,6 @@
 
 **المتابعين:** 128 · **عدد المنشورات:** 17 · **انتشر هالأسبوع:** 1
 
-> ⚠️ ناقص صلاحيات للتوكن: instagram_manage_insights, instagram_manage_comments, pages_manage_posts — بعض الأرقام/التعليقات ما انسحبت.
-
 ![chart](reports/chart_2026-11-07.png)
 
 ## حسب الموضوع
