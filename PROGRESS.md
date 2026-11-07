@@ -71,6 +71,19 @@
   - FB Page cross-post (page token already stored).
   - Weekly report_AR.md + re-weighting.
 
+## Growth layer, built (samples approved 2026-11-07)
+- bot/reels_plan.py: 1 reel/day at 20:30 (reels_per_day 2 adds the athar at 13:00).
+  - Sat/Mon/Wed: athar. Sun/Tue: verse + As-Sa'di (28 exact lines, data/reels_content.yaml). Thu: share-dua (deceased/sick/parents). Fri: Friday + Saud.
+  - Hijri seasons via hijridate (Ramadan 1448 starts 2027-02-08, just after the current bank).
+- 90 reel specs are in the bank (pending). Videos are rendered on review/approval; week-1 reels are rendered for review.
+- FB cross-post code (fb_photo / fb_reel) exists, but config crosspost.facebook=false until the token has pages_manage_posts.
+- weekly.yml (Fri 10:30 UTC) runs weekly_report.py → report_AR.md + chart + data/optimizer.json (best reel time is applied at approval) + Trial Reels reminder at 200 followers. It currently reports missing insights/comments scopes.
+- NOT done (needs the user):
+  - Threads API auth + code.
+  - YouTube OAuth + code.
+  - Token regen with instagram_manage_insights, instagram_manage_comments, pages_manage_posts (add them to the app use case first).
+  - Licensed recitation source.
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.
