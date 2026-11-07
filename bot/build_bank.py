@@ -56,8 +56,9 @@ def items_for_day(d: date, n: int, cfg, verses, hadith, duas):
             it = pool[(n * k + f) % len(pool)]
             out.append({
                 "id": f"{d}-{key}-{f + 1}", "date": str(d), "slot": f"story_{key}", "kind": "story",
-                "time": (when + timedelta(minutes=f)).isoformat(), "title": title,
-                "main": it["main"], "note": it["count"], "source": it["source"],
+                "time": (when + timedelta(minutes=f)).isoformat(), "title": it["title"],
+                "session": title, "main": it["main"], "note": it["count"], "source": it["source"],
+                "show_source": False,  # the account's adhkar slides show only the count
                 "refs": [f"hisn:{it['hisn_id']}"], "caption": "", "status": "pending",
             })
 

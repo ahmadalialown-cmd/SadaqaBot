@@ -28,6 +28,13 @@
 1. Link @9d8h0garyh to the Page «صدقة جارية» (checked 2026-11-07: nothing linked yet). The IG confirm step is a popup that only opens from the user's click.
 2. Generate a new token in Explorer with the Page + IG selected, then run `secrets_setup.py` (the user copies the values; Claude must not).
 
+## 2026-11-07 (later)
+- @9d8h0garyh confirmed **Business**. Page «صدقة جارية» = Page id 1428399470356408. The IG link was started in Business Suite (settings → profiles → page → «ربط بحساب Instagram» → «تسجيل الدخول إلى Instagram» → «متابعة»), but the final IG window is a popup that only opens from the user's click.
+- The style is tuned against the real slides (style_refs/ref_*.png; out/compare.png):
+  - Noto Naskh 600, title on top + rule, clause-per-line text, count at the bottom.
+  - Quran from the Tanzil *simple* script (as the account uses), split at pause marks, no ayah numbers, no basmala on adhkar slides.
+  - The bank was rebuilt (still all pending).
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.

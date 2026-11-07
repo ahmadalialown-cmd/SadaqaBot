@@ -36,7 +36,7 @@ html,body {{ margin:0; width:1080px; height:1920px; background:transparent; }}
 
 def overlay_png(text, src, path):
     px = 60 if len(text) < 120 else 50 if len(text) < 250 else 42
-    html = OVERLAY.format(qf=_font_data_uri(STYLE["quran_font_file"]), mf=_font_data_uri(STYLE["font_file"]),
+    html = OVERLAY.format(qf=_font_data_uri(STYLE["font_file"]), mf=_font_data_uri(STYLE["font_file"]),
                           fg=STYLE["fg"], muted=STYLE["muted"], px=px, text=text, src=src)
     with sync_playwright() as p:
         b = p.chromium.launch()

@@ -12,7 +12,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-from quran import verse
+from quran import title_for, verse
 
 HISN = Path(__file__).resolve().parents[1] / "data" / "hisn"
 
@@ -67,18 +67,64 @@ def items(session: str):
         if session == "morning" and i in EVENING_ONLY:
             continue
         if i in QURAN_ITEMS:
-            texts, srcs = [], []
+            # one frame per sura (like the account's own slides), same count note on each
             for s, a, b in QURAN_ITEMS[i]:
-                t, src = verse(s, a, b)
-                texts.append(t)
-                srcs.append(src)
-            main, count = "\n".join(texts), COUNT_FROM_HISN.get(i)
-            source = " · ".join(srcs)
-        else:
-            main, count = _clean(it["ARABIC_TEXT"])
-            source = "حصن المسلم"
-        out.append({"hisn_id": i, "main": main, "count": count, "source": source})
+                t, src = verse(s, a, b, basmala=False)
+                out.append({"hisn_id": i, "main": t, "count": fmt_count(COUNT_FROM_HISN.get(i), 1),
+                            "source": src, "title": title_for(s, a, b)})
+            continue
+        main, note = _clean(it["ARABIC_TEXT"])
+        out.append({"hisn_id": i, "main": split_lines(main), "count": fmt_count(note, it["REPEAT"]),
+                    "source": "حصن المسلم", "title": short_title(main)})
     return out
+
+
+TASHKEEL = re.compile(r"[ً-ٰٟـ]")
+NUM_WORDS = {"ثلاث": 3, "أربع": 4, "اربع": 4, "سبع": 7, "عشر": 10, "مائة": 100, "مائه": 100, "مئة": 100}
+
+
+def _plain(s):
+    return TASHKEEL.sub("", s)
+
+
+def fmt_count(note, repeat):
+    """'ثلاثَ مرَّاتٍ إذا أصبحَ' -> '٣ مرات · إذا أصبح' ; None/1 -> 'مرة واحدة'."""
+    from quran import ar_num
+    if not note:
+        return "مرة واحدة" if repeat in (None, 1) else f"{ar_num(repeat)} مرات"
+    p = _plain(note)
+    if "أو" in p:          # e.g. "عشر مرات، أو مرة واحدة عند الكسل" — keep the book's words
+        return p
+    for w, n in NUM_WORDS.items():
+        if p.startswith(w):
+            rest = re.sub(r"^\S+\s+(مرات|مرة)\s*", "", p).strip()
+            base = f"{ar_num(n)} {'مرات' if n <= 10 else 'مرة'}"
+            return f"{base} · {rest}" if rest else base
+    return p
+
+
+def split_lines(text, target=28):
+    """Clause-per-line like the account's slides (break after ، . :), merging very short
+    neighbouring clauses so long duas don't become a thin column."""
+    t = re.sub(r"\s*([،.:])\s*", r"\1\n", text)
+    clauses = [ln.strip(" ،.:") for ln in t.split("\n") if ln.strip(" ،.:")]
+    lines, cur = [], ""
+    for c in clauses:
+        if cur and len(_plain(cur)) + len(_plain(c)) + 1 <= target:
+            cur = f"{cur}، {c}"
+        else:
+            if cur:
+                lines.append(cur)
+            cur = c
+    if cur:
+        lines.append(cur)
+    return "\n".join(lines)
+
+
+def short_title(text, max_words=5):
+    first = re.split(r"[،.:]", text)[0].strip()
+    words = first.split()
+    return " ".join(words[:max_words]) if len(words) <= max_words else " ".join(words[:3])
 
 
 def dead_duas():
@@ -89,7 +135,7 @@ def dead_duas():
         for it in _load(ch):
             if it["ID"] in keep:
                 main, _ = _clean(it["ARABIC_TEXT"])
-                out.append({"hisn_id": it["ID"], "main": main, "source": "حصن المسلم"})
+                out.append({"hisn_id": it["ID"], "main": split_lines(main), "source": "حصن المسلم"})
     return out
 
 
