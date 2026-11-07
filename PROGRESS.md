@@ -84,6 +84,17 @@
   - Token regen with instagram_manage_insights, instagram_manage_comments, pages_manage_posts (add them to the app use case first).
   - Licensed recitation source.
 
+## 2026-11-07 (late): PAUSED — Facebook account locked
+- The token was regenerated with insights/comments/pages_manage_posts and crosspost.facebook was turned on. Insights for the 17 posts were pulled.
+- Then Meta put the FB account behind a security checkpoint ("may have been compromised"). The API returns OAuthException 190 ("log in to facebook.com…").
+- Set `paused: true`. The Threads setup was stopped mid-way (the Threads use case is already added to the app).
+- To resume:
+  1. The user unlocks on a device they used before.
+  2. Check the token (`graph.token_status()`); if invalid, regenerate it in Explorer and run setup_secrets.ps1.
+  3. Set `paused: false`.
+  4. Re-approve/reschedule the missed week-1 items if needed. max_late is 90 min, so missed slots are skipped, not posted late.
+- Keep browser automation on Meta sites to a minimum from now on.
+
 ## Next after the user says تم
 1. Verify the Secrets exist (`gh secret list`) and query `me/accounts` in Explorer.
 2. Fetch the last ~40 posts into `style_refs/`, analyse them, tune `render.STYLE` and `captions.py`, then make a side-by-side comparison.
