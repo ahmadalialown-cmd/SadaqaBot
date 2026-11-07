@@ -12,7 +12,7 @@ from pathlib import Path
 
 import requests
 
-GRAPH = "https://graph.facebook.com/v24.0"
+GRAPH = "https://graph.facebook.com/v27.0"
 ROOT = Path(__file__).resolve().parents[1]
 
 
