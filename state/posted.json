@@ -6,5 +6,27 @@
   }
  },
  "failed": {},
- "warning": null
+ "warning": null,
+ "skipped": {
+  "2026-11-10-morning-01": "ramp stage 1",
+  "2026-11-10-morning-02": "ramp stage 1",
+  "2026-11-10-morning-03": "ramp stage 1",
+  "2026-11-10-morning-04": "ramp stage 1",
+  "2026-11-10-morning-05": "ramp stage 1",
+  "2026-11-10-morning-06": "ramp stage 1",
+  "2026-11-10-morning-07": "ramp stage 1",
+  "2026-11-10-morning-08": "ramp stage 1",
+  "2026-11-10-morning-09": "ramp stage 1",
+  "2026-11-10-morning-10": "ramp stage 1",
+  "2026-11-10-morning-11": "ramp stage 1",
+  "2026-11-10-morning-12": "ramp stage 1",
+  "2026-11-10-morning-13": "ramp stage 1",
+  "2026-11-10-morning-14": "ramp stage 1",
+  "2026-11-10-morning-15": "ramp stage 1",
+  "2026-11-10-morning-16": "ramp stage 1",
+  "2026-11-10-morning-17": "ramp stage 1",
+  "2026-11-10-morning-18": "ramp stage 1",
+  "2026-11-10-morning-19": "ramp stage 1",
+  "2026-11-10-morning-20": "ramp stage 1"
+ }
 }
