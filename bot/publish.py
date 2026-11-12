@@ -58,7 +58,7 @@ def ensure_media(items, push: bool):
         subprocess.run(["git", "add", "media"], cwd=ROOT, check=True)
         if subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=ROOT).returncode != 0:
             subprocess.run(["git", "commit", "-m", "media: new file(s)"], cwd=ROOT, check=True)
-            subprocess.run(["git", "pull", "--rebase"], cwd=ROOT, check=True)
+            subprocess.run(["git", "pull", "--rebase", "--autostash"], cwd=ROOT, check=True)
             subprocess.run(["git", "push"], cwd=ROOT, check=True)
     for x in items:
         rel = x.get("video") or x.get("image") or f"media/{x['id']}.png"
@@ -73,7 +73,7 @@ def ensure_media(items, push: bool):
 def crosspost_facebook(x, cfg, state, graph, st=3):
     """Same approved content to the linked Facebook Page (feed posts + reels). Never blocks IG.
     Only from warm-up stage 3, so the Facebook account isn't hit during the gentle restart."""
-    if st < 3 or not (cfg.get("crosspost") or {}).get("facebook") or x["kind"] not in ("feed", "reel"):
+    if st < 3 or cfg.get("calm") or not (cfg.get("crosspost") or {}).get("facebook") or x["kind"] not in ("feed", "reel"):
         return
     if x["kind"] == "story":
         return
@@ -120,7 +120,7 @@ def pick_for_run(due, cfg, st, state, today):
     import ramp
     keep = []
     for x in due:
-        if ramp.allowed(x, st):
+        if (ramp.calm_allowed(x) if cfg.get("calm") else ramp.allowed(x, st)):
             keep.append(x)
         else:
             state["skipped"][x["id"]] = f"ramp stage {st}"
@@ -134,11 +134,31 @@ def pick_for_run(due, cfg, st, state, today):
     return (feeds + stories)[:room]
 
 
+def next_in(bank, state, cfg, st, now):
+    """Seconds until the next item this mode would publish (-1 if none). Used by the workflow
+    to wait for the exact prayer-based time instead of relying on GitHub's cron timing."""
+    import ramp
+    best = None
+    for x in bank["items"]:
+        if x["id"] in state["posted"] or x["id"] in state.get("skipped", {}) or x["status"] == "rejected":
+            continue
+        if not (cfg.get("auto_approve") or x["status"] == "approved"):
+            continue
+        if not (ramp.calm_allowed(x) if cfg.get("calm") else ramp.allowed(x, st)):
+            continue
+        t = datetime.fromisoformat(x["time"])
+        if t > now and (best is None or t < best):
+            best = t
+    return int((best - now).total_seconds()) if best else -1
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--only")
     ap.add_argument("--now", help="pretend time (ISO), for testing")
+    ap.add_argument("--next-in", action="store_true",
+                    help="print seconds until the next publishable item (-1 if none); no API calls")
     a = ap.parse_args()
 
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
@@ -154,6 +174,9 @@ def main():
     st, info = ramp.stage(cfg, now.date())
     if st is None and not a.only:
         print(f"warm-up starts in {info} day(s) — nothing published, no API calls.")
+        return 0
+    if a.next_in:
+        print(next_in(bank, state, cfg, st, now))
         return 0
     h = health.load()
     due = due_items(bank, state, cfg, now, a.only)

@@ -31,7 +31,20 @@ def allowed(item, st):
     return False
 
 
+# Calm mode (config `calm: true`, set 2026-11-12): ONE publish per slot per day, nothing extra:
+#   morning adhkar story (after Fajr), evening adhkar story (after Asr), the Maghrib feed post
+#   (athar; Friday = dua for the deceased), sleep adhkar story (22:00), Friday Asr post.
+# Adhkar = the first frame of the account's own carousel (one story, no bursts). No reels.
+CALM_SUFFIXES = ("-morning-01", "-evening-01", "-sleep-01", "-maghrib", "-friday-asr")
+
+
+def calm_allowed(item):
+    return item["kind"] != "reel" and item["id"].endswith(CALM_SUFFIXES)
+
+
 def daily_cap(cfg, st):
+    if cfg.get("calm"):
+        return int(cfg.get("calm_max_per_day", 5))
     w = cfg.get("warmup") or {}
     return {1: 1, 2: 2}.get(st, int(w.get("max_per_day", 60)))
 

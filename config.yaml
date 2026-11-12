@@ -3,6 +3,13 @@
 #   THE ONE SWITCH: set `paused: true` to stop everything (publishing, API calls, reports).
 paused: false
 
+# Calm restart (2026-11-12): exactly one publish per slot per day, nothing extra:
+#   أذكار الصباح story after Fajr, أذكار المساء story after Asr, the athar feed post at Maghrib,
+#   أذكار النوم story at 22:00; Fridays also the Asr salawat post, and Maghrib = dua for Saud.
+#   No reels, no story bursts, no Facebook cross-post. Overrides the warm-up ramp below.
+calm: true
+calm_max_per_day: 5
+
 # Warm-up after the account locks of 2026-11-07 (fully automatic, no input needed):
 #   from start_date: week 1 = 1 post/day (Maghrib feed), week 2 = 2/day (+ daily reel),
 #   then the full schedule. Nothing at all (not even API calls) happens before start_date.
@@ -47,7 +54,7 @@ reel_time_2: "13:00"
 
 # Cross-posting (same approval applies). Facebook uses the stored Page token.
 crosspost:
-  facebook: true    # token has pages_manage_posts (2026-11-07)
+  facebook: false   # off for the calm restart (2026-11-12); token has pages_manage_posts
   threads: false    # needs one-time Threads auth
   youtube: false    # needs one-time Google OAuth
 

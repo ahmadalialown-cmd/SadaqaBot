@@ -121,3 +121,14 @@
 4. After approval: `approve.py --days 7`, then commit/push.
 5. Run a dry run on Actions, get the user's OK, then `publish.py --only <story id>` for one test story and verify it via `graph.media_info`.
 6. Add `schedule: cron */30` and set `paused: false`, then tell the user what's running and the next post time.
+
+## 2026-11-12: calm restart (requested)
+- Since 11-10 nothing has published. The */30 cron only fired every 4-10 h, so the Maghrib slot (max_late 90 min) was always missed.
+- Health check (one call, GET /me with IG_TOKEN): **OAuthException 190/460**. The session was invalidated after a password change or security reset (the account unlock). **The user must regenerate the token** (README_AR.md «إذا انتهى التوكن» → setup_secrets.ps1).
+- `calm: true` (config): one publish per slot per day, overriding the ramp:
+  - morning-01 / evening-01 / sleep-01 story (cover frame of the account's own carousel)
+  - the Maghrib feed post (athar; Friday = dua for Saud) and Friday-asr
+  - No reels, no FB cross-post, cap 5/day.
+- publish.yml has 6 fixed crons (one plus a backup before each prayer window). Each run waits for the exact item time via `publish.py --next-in` (≤5.5 h) and saves state after every publish.
+- Until the token is renewed, the first due item triggers the auth auto-pause: a GitHub issue (email) and a probe once per 24 h. After setup_secrets.ps1 it resumes by itself within ≤24 h.
+- Auto token refresh is still NOT possible: the email warning goes out 14 days before expiry.

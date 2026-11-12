@@ -1,10 +1,21 @@
 name: publish
 
-# Runs every 30 min. Nothing is posted while config.yaml has `paused: true`,
-# and only items with status "approved" are ever published.
+# GitHub's cron is unreliable (*/30 fired only every 4-10 h, so prayer slots were missed).
+# So: a few fixed triggers shortly before each prayer window (plus a backup each), and the
+# run waits for the exact prayer-based time of each item (publish.py --next-in), up to 5.5 h.
+# Nothing is posted while config.yaml has `paused: true`; Meta push-back = auto-pause + email.
+# Times are UTC (Doha = UTC+3):
+#   23:41 / 00:47  -> أذكار الصباح after Fajr (Fajr+20 = 00:35-02:15 UTC over the year)
+#   10:13 / 11:07  -> أذكار المساء after Asr, Friday Asr post, Maghrib post (11:40-15:35 UTC)
+#   17:23 / 18:11  -> أذكار النوم at 22:00 Doha (19:00 UTC)
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "41 23 * * *"
+    - cron: "47 0 * * *"
+    - cron: "13 10 * * *"
+    - cron: "7 11 * * *"
+    - cron: "23 17 * * *"
+    - cron: "11 18 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -23,7 +34,7 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -48,9 +59,20 @@ jobs:
           cd bot
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
             python publish.py --dry-run
-          else
-            python publish.py
+            exit 0
           fi
+          save() { (cd .. && git add state media && (git diff --cached --quiet ||                    (git commit -q -m "state: publish run" && git pull -q --rebase --autostash && git push -q))) || true; }
+          end=$(( $(date +%s) + 19800 ))   # wait at most 5.5 h in one run
+          while true; do
+            python publish.py
+            save
+            grep -qE '^paused: *true' ../config.yaml && break
+            s=$(python publish.py --next-in | tail -1)
+            [ "$s" -ge 0 ] 2>/dev/null || break
+            [ $(( $(date +%s) + s )) -le $end ] || break
+            echo "next item in $((s / 60)) min — waiting"
+            sleep $(( s + 30 ))
+          done
       - name: save state
         if: always()
         run: |
