@@ -3,8 +3,8 @@
   "kind": "permission",
   "reason": "OAuthException 200/None: API access blocked.",
   "since": "2026-11-13T01:45:43.504672+03:00",
-  "retry_after": "2026-11-18T04:53:29.525901+03:00"
+  "retry_after": "2026-11-19T04:54:29.927386+03:00"
  },
- "last_probe": "2026-11-17T04:53:29.525880+03:00",
+ "last_probe": "2026-11-18T04:54:29.927367+03:00",
  "consecutive_other": 0
 }
